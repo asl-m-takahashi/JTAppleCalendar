@@ -38,12 +38,19 @@ let errorDelta: CGFloat = 0.0000001
 open class JTAppleCalendarView: UICollectionView {}
 open class JTACMonthView: UICollectionView {
     
-    /// Configures the size of your date cells
-    @IBInspectable open var cellSize: CGFloat = 0 {
-        didSet {
-            if oldValue == cellSize { return }
-            calendarViewLayout.invalidateLayout()
-        }
+//    /// Configures the size of your date cells
+//    @IBInspectable open var cellSize: CGFloat = 0 {
+//        didSet {
+//            if oldValue == cellSize { return }
+//            calendarViewLayout.invalidateLayout()
+//        }
+//    }
+    
+    open var cellSize: ((Int, Int) -> CGFloat)? = nil {
+            didSet {
+                if self.cellSize == nil { return }
+                calendarViewLayout.invalidateLayout()
+            }
     }
     
     /// Stores the first and last selected date cel

@@ -33,8 +33,8 @@ class JTACMonthLayout: UICollectionViewLayout, JTACMonthLayoutProtocol {
     
     var lastSetCollectionViewSize: CGRect = .zero
     
-    var cellSize: CGSize = CGSize.zero
-    var shouldUseUserItemSizeInsteadOfDefault: Bool { return delegate.cellSize == 0 ? false: true }
+    var cellSize: ((Int, Int) -> CGSize) = { _, _ in CGSize.zero}
+    var shouldUseUserItemSizeInsteadOfDefault: Bool { return delegate.cellSize == nil ? false: true }
     var scrollDirection: UICollectionView.ScrollDirection = .horizontal
     var maxMissCount: Int = 0
     var cellCache: [Int: [(item: Int, section: Int, xOffset: CGFloat, yOffset: CGFloat, width: CGFloat, height: CGFloat)]] = [:]
@@ -85,25 +85,29 @@ class JTACMonthLayout: UICollectionViewLayout, JTACMonthLayoutProtocol {
     
     var reloadWasTriggered = false
     var isDirty: Bool {
-        return updatedLayoutCellSize != cellSize
+//        return updatedLayoutCellSize != cellSize
+        return true
     }
     
-    var updatedLayoutCellSize: CGSize {
-        guard let cachedConfiguration = delegate._cachedConfiguration else { return .zero }
+    var updatedLayoutCellSize: ((Int, Int) -> CGSize) {
+        guard let cachedConfiguration = delegate._cachedConfiguration else { return { _, _ in CGSize.zero} }
         
         // Default Item height and width
-        var height: CGFloat = collectionView!.bounds.size.height / CGFloat(cachedConfiguration.numberOfRows)
-        var width: CGFloat = collectionView!.bounds.size.width / CGFloat(maxNumberOfDaysInWeek)
+        let height: CGFloat = collectionView!.bounds.size.height / CGFloat(cachedConfiguration.numberOfRows)
+        let width: CGFloat = collectionView!.bounds.size.width / CGFloat(maxNumberOfDaysInWeek)
         
         if shouldUseUserItemSizeInsteadOfDefault { // If delegate item size was set
             if scrollDirection == .horizontal {
-                width = delegate.cellSize
+//                width = delegate.cellSize
+                return {item, section in CGSize(width: self.delegate.cellSize!(item, section), height: height)}
             } else {
-                height = delegate.cellSize
+//                height = delegate.cellSize
+                return {item, section in CGSize(width: width, height: self.delegate.cellSize!(item, section))}
             }
         }
         
-        return CGSize(width: width, height: height)
+//        return CGSize(width: width, height: height)
+        return {item, section in CGSize(width: width, height: height)}
     }
     
     open override func register(_ nib: UINib?, forDecorationViewOfKind elementKind: String) {
@@ -434,13 +438,13 @@ class JTACMonthLayout: UICollectionViewLayout, JTACMonthLayoutProtocol {
                 return (cachedCell.width, cachedCell.height)
             }
         }
-        let width = cellSize.width - ((sectionInset.left / 7) + (sectionInset.right / 7))
-        var size: (width: CGFloat, height: CGFloat) = (width, cellSize.height)
+        let width = cellSize(item, section).width - ((sectionInset.left / 7) + (sectionInset.right / 7))
+        var size: (width: CGFloat, height: CGFloat) = (width, cellSize(item, section).height)
         if shouldUseUserItemSizeInsteadOfDefault {
             if scrollDirection == .vertical {
-                size.height = cellSize.height
+                size.height = cellSize(item, section).height
             } else {
-                size.width = cellSize.width
+                size.width = cellSize(item, section).width
                 let headerHeight =  strictBoundaryRulesShouldApply ? cachedHeaderHeightForSection(section) : 0
                 let currentMonth = monthInfo[monthMap[section]!]
                 let recalculatedNumOfRows = allowsDateCellStretching ? CGFloat(currentMonth.maxNumberOfRowsForFull(developerSetRows: numberOfRows)) : CGFloat(maxNumberOfRowsPerMonth)

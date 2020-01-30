@@ -29,7 +29,7 @@ protocol JTACMonthDelegateProtocol: class {
     var allowsDateCellStretching: Bool {get set}
     var _cachedConfiguration: ConfigurationParameters! {get set}
     var calendarDataSource: JTACMonthViewDataSource? {get set}
-    var cellSize: CGFloat {get set}
+    var cellSize: ((Int, Int) -> CGFloat)? {get set}
     var anchorDate: Date? {get set}
     var calendarLayoutIsLoaded: Bool {get}
     var minimumInteritemSpacing: CGFloat  {get set}
