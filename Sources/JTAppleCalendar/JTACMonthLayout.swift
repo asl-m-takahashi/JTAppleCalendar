@@ -99,10 +99,22 @@ class JTACMonthLayout: UICollectionViewLayout, JTACMonthLayoutProtocol {
         if shouldUseUserItemSizeInsteadOfDefault { // If delegate item size was set
             if scrollDirection == .horizontal {
 //                width = delegate.cellSize
-                return {item, section in CGSize(width: self.delegate.cellSize!(item, section), height: height)}
+                return {item, section in
+                    var w = self.delegate.cellSize!(item, section)
+                    if w == CGFloat.zero {
+                        w = width
+                    }
+                    return CGSize(width: w, height: height)
+                }
             } else {
 //                height = delegate.cellSize
-                return {item, section in CGSize(width: width, height: self.delegate.cellSize!(item, section))}
+                return {item, section in
+                    var h = self.delegate.cellSize!(item, section)
+                    if h == CGFloat.zero {
+                        h = height
+                    }
+                    return CGSize(width: width, height: h)
+                }
             }
         }
         
