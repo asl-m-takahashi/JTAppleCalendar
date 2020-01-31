@@ -450,13 +450,15 @@ class JTACMonthLayout: UICollectionViewLayout, JTACMonthLayoutProtocol {
                 return (cachedCell.width, cachedCell.height)
             }
         }
-        let width = cellSize(item, section).width - ((sectionInset.left / 7) + (sectionInset.right / 7))
-        var size: (width: CGFloat, height: CGFloat) = (width, cellSize(item, section).height)
+        let cellSizeWidth = cellSize(item, section).width
+        let cellSizeHeight = cellSize(item, section).height
+        let width = cellSizeWidth - ((sectionInset.left / 7) + (sectionInset.right / 7))
+        var size: (width: CGFloat, height: CGFloat) = (width, cellSizeHeight)
         if shouldUseUserItemSizeInsteadOfDefault {
             if scrollDirection == .vertical {
-                size.height = cellSize(item, section).height
+                size.height = cellSizeHeight
             } else {
-                size.width = cellSize(item, section).width
+                size.width = cellSizeWidth
                 let headerHeight =  strictBoundaryRulesShouldApply ? cachedHeaderHeightForSection(section) : 0
                 let currentMonth = monthInfo[monthMap[section]!]
                 let recalculatedNumOfRows = allowsDateCellStretching ? CGFloat(currentMonth.maxNumberOfRowsForFull(developerSetRows: numberOfRows)) : CGFloat(maxNumberOfRowsPerMonth)
